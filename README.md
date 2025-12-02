@@ -3,13 +3,22 @@
   <img src="https://github.com/HaeinSeo/Bic_Vision_XAI/blob/main/hae.png" width="200" alt="Bic_Vision_XAI Logo">
 </p>
 
-<p align="center" style="font-family: 'Comic Sans MS', 'Garamond', cursive; color:#993A6B;">
-  <h1>💥 Bic_Vision_XAI: A Vision-driven Explainable AI System for Breast Cancer Diagnosis 💥</h1>
+<p align="center" style="font-family: 'SchoolSafetyWing', 'Garamond', cursive; color:#993A6B;">
+  <h1> Bic_Vision_XAI: A Vision-driven Explainable AI System for Breast Cancer Diagnosis 💥</h1>
 </p>
 
 <p align="center" style="font-size:16px; line-height:1.6;">
   This project leverages <b>Explainable AI (XAI)</b> technologies to provide transparent and interpretable predictions for breast cancer cell image classification. The system integrates advanced machine learning models and XAI techniques to enhance medical professionals' trust in automated diagnostic systems. 🩺
 </p>
+
+<style>
+  @font-face {
+    font-family: 'SchoolSafetyWing';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/HakgyoansimNalgaeR.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+</style>
 
 ---
 
