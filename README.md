@@ -45,7 +45,8 @@ Used for CNN image classification & cell detection
 
 <span class="section-title">🌺 Live Demo Video & Captured Images</span>
 
-🔗 Demo Video
+###🔗 Demo Video
+
 https://github.com/user-attachments/assets/09491f00-293a-4764-b665-9f8fb0a628c1
 
 <span class="section-title">🌿 Benign Samples</span>
