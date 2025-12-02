@@ -1,84 +1,141 @@
 # 💡 Bic_Vision_XAI 💡  
+
 <p align="center">
-  <img src="https://github.com/HaeinSeo/Bic_Vision_XAI/blob/main/hae.png" width="200" alt="Bic_Vision_XAI Logo">
+  <img src="https://github.com/HaeinSeo/Bic_Vision_XAI/blob/main/hae.png" width="210" alt="Bic_Vision_XAI Logo">
 </p>
 
-<p align="center" style="font-family: 'SchoolSafetyWing', 'Garamond', cursive; color:#993A6B;">
-  <h1> Bic_Vision_XAI: A Vision-driven Explainable AI System for Breast Cancer Diagnosis 💥</h1>
+<h1 align="center"> ✨ Bic_Vision_XAI ✨  
+<p align="center" style="font-size:18px;">
+Vision-driven Explainable AI System for Breast Cancer Diagnosis
+</p>
+</h1>
+
+<p align="center">
+This project leverages <b>Explainable AI (XAI)</b> to provide transparent and interpretable predictions for breast cancer cell image classification.  
+It integrates <b>CNN-based models, feature-based ML models, and Vision-Language Models (VLM)</b> to enhance trust and usability in clinical decision support. 🩺
 </p>
 
-<p align="center" style="font-size:16px; line-height:1.6;">
-  This project leverages <b>Explainable AI (XAI)</b> technologies to provide transparent and interpretable predictions for breast cancer cell image classification. The system integrates advanced machine learning models and XAI techniques to enhance medical professionals' trust in automated diagnostic systems. 🩺
-</p>
+---
 
-<style>
-  @font-face {
-    font-family: 'SchoolSafetyWing';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/HakgyoansimNalgaeR.woff2') format('woff2');
-    font-weight: normal;
-    font-display: swap;
-}
-</style>
+### 🔎 Project Overview
+
+The **Bic_Vision_XAI** web application analyzes breast cancer cell images through **two complementary ML systems**:
+
+- **CNN-based Deep Learning Model** — Extracts visual patterns directly from microscopic images  
+- **Random Forest based on 30 numerical features** — Leverages classical ML to ensure stability and transparency  
+
+The system integrates **SHAP, LIME, and LLaVA (VLM)** to visually and linguistically explain predictions.
 
 ---
 
-### 🔎 **Project Overview**
+### ✨ Key Features
 
-The **Bic_Vision_XAI** is a web application designed to analyze breast cancer cell images using deep learning models. This system uses **CNN-based deep learning models** and **traditional feature-based Random Forest models** for classifying images as either **Benign** or **Malignant**. Additionally, the application uses cutting-edge **XAI techniques** such as **SHAP**, **LIME**, and **VLM** (Vision Language Models) to explain predictions and provide detailed visual and textual explanations of the model's decisions.
-
----
-
-### ✨ **Key Features**
-
-- **🔬 Dual System Image Classification**:  
-   - **CNN-based Deep Learning Model**: Learns complex patterns in images.
-   - **Traditional Feature-based Random Forest**: Classifies based on 30 numerical features extracted from the images.
-   
-- **💡 XAI (Explainable AI) Explanation**:  
-   - **SHAP (SHapley Additive exPlanations)**: Quantifies the contribution of each feature to the prediction.
-   - **LIME (Local Interpretable Model-agnostic Explanations)**: Explains specific predictions with localized insights.
-   - **VLM (Vision Language Model - LLaVA)**: Generates detailed natural language explanations based on image and classification results.
-   
-- **🖼️ Cell Detection**:  
-   - Automatically detects breast cancer cell regions within images and highlights them using **bounding boxes**.
-
-- **🚀 Real-time Analysis**:  
-   - Upload images directly to the web interface and receive immediate classification results and XAI explanations.
+| Feature | Description |
+|--------|------------|
+| 🔬 **Dual Classification** | CNN + Random Forest hybrid inference |
+| 💡 **XAI Interpretation** | SHAP (global/feature), LIME (local), VLM (text explanation) |
+| 🖼 **Cell Detection** | Automatic bounding box localization |
+| ⚡ **Real-time Web UI** | Upload → Predict → Explain on browser |
 
 ---
 
-### 🛠️ **Tech Stack**
+### 🛠 Tech Stack
 
-| Category        | Technology           | Description                                        |
-| --------------- | -------------------- | -------------------------------------------------- |
-| **Backend**     | Flask                | Web application server framework                   |
-| **ML Core**     | PyTorch              | Deep learning framework for CNN models             |
-| **ML/XAI**      | scikit-learn, SHAP, LIME | Classical ML models & XAI libraries                |
-| **Vision**      | OpenCV, scikit-image | Image processing, feature extraction, cell detection |
-| **VLM**         | LLaVA                | Vision Language Model for generating natural language explanations |
-| **Frontend**    | HTML, CSS, JavaScript | Web interface and user experience design           |
-
----
-
-### 📊 **Datasets Used**
-
-This project utilizes two major datasets for training and evaluating the models:
-
-1. **[Breast Cancer Wisconsin (Diagnostic) Dataset](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)** (UCI ML Repository)  
-   - **Content**: 569 samples with 30 numerical features (e.g., radius, texture, perimeter, area) to classify tumors as **Malignant** or **Benign**.
-   - **Source**: University of Wisconsin Diagnostic Center
-
-2. **[Breast Cancer Cell Segmentation Dataset (Andrewmvd)](https://www.kaggle.com/datasets/andrewmvd/breast-cancer-cell-segmentation)** (Kaggle)  
-   - **Content**: Includes **TIFF** and **PNG** images of breast cancer cells, along with the diagnosis results (Benign/Malignant).
-   - **Data Use**: Utilized for image-based deep learning classification and segmentation tasks, including **cell detection** and **image classification**.
-   - **Link**: [Kaggle Breast Cancer Cell Segmentation Dataset](https://www.kaggle.com/datasets/andrewmvd/breast-cancer-cell-segmentation)
+| Category | Technology |
+|--------|------------|
+| Backend | Flask |
+| ML Core | PyTorch |
+| Feature ML & XAI | scikit-learn, SHAP, LIME |
+| Vision | OpenCV, scikit-image |
+| VLM | LLaVA |
+| Frontend | HTML, CSS, JavaScript |
 
 ---
 
-### 📦 **Installation and Setup**
+### 📊 Datasets Used
 
-1. **Clone the Repository**:
+This project uses **two independent datasets** to support both numerical-feature modeling and image-based modeling:
+
+#### **1️⃣ Breast Cancer Wisconsin (Diagnostic) Dataset**
+🔗 <https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic>  
+- **569 samples / 30 continuous features**
+- Labels: **Malignant / Benign**
+
+#### **2️⃣ Breast Cancer Cell Segmentation Dataset (Andrewmvd)**
+🔗 <https://www.kaggle.com/datasets/andrewmvd/breast-cancer-cell-segmentation>  
+- TIFF & PNG breast cancer cell images
+- Used for **CNN image classification** & **cell detection**
+
+---
+
+### 📦 Installation & Execution
+
+#### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/HaeinSeo/bic_vision_xai.git
-cd bic_vision_xai
+git clone https://github.com/HaeinSeo/Bic_Vision_XAI.git
+cd Bic_Vision_XAI
+2️⃣ Create environment
+bash
+코드 복사
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Mac/Linux
+python3 -m venv venv
+source venv/bin/activate
+3️⃣ Install dependencies
+bash
+코드 복사
+pip install -r requirements.txt
+4️⃣ Run the app
+bash
+코드 복사
+python app.py
+Then open:
+
+➡ http://localhost:5000
+
+📁 Project Structure
+cpp
+코드 복사
+Bic_Vision_XAI/
+├── app.py                   
+├── model_utils.py           
+├── image_classifier.py      
+├── image_utils.py           
+├── vlm_utils.py             
+├── requirements.txt         
+├── templates/
+│   └── index.html           
+├── static/                 
+├── uploads/               
+└── models/
+    ├── breast_cancer_model.joblib
+    └── image_classifier_model.pth
+🔧 Model Training
+Random Forest — Uses 30-feature CSV
+
+CNN Image Model — Trained directly with cell images
+
+If model files missing → auto-trigger training at launch
+
+🐛 Troubleshooting
+Issue	Solution
+GPU not recognized	reinstall PyTorch with CUDA
+VLM fails	ensure stable internet
+Weak cell detection	tune parameters in image_utils.py
+
+👤 Developer / Research Lead
+Name	Role
+Seo Haein	Creator & Lead Developer (ML/XAI Backend)
+
+📧 Contact & Issues
+➡ https://github.com/HaeinSeo/Bic_Vision_XAI/issues
+
+📚 Citation (Datasets)
+Breast Cancer Wisconsin (Diagnostic) Data Set — UCI ML Repository
+Breast Cancer Cell Segmentation Dataset — Kaggle (Andrewmvd)
+
+<p align="center"> ⭐ If this project inspires you, please consider giving it a star! ⭐ </p>
