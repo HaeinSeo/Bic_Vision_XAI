@@ -1,182 +1,75 @@
-# 유방암 이미지 분석 웹 애플리케이션
+# 💡 Bic_Vision_XAI 💡  
+<p align="center">
+  <img src="https://github.com/HaeinSeo/Bic_Vision_XAI/blob/main/haehaein.png" width="200" alt="Bic_Vision_XAI Logo">
+</p>
 
-XAI (Explainable AI) 기술을 활용한 유방암 세포 이미지 분류 및 설명 시스템
+<p align="center" style="font-family: 'Comic Sans MS', 'Garamond', cursive; color:#993A6B;">
+  <h1>💥 Bic_Vision_XAI: A Vision-driven Explainable AI System for Breast Cancer Diagnosis 💥</h1>
+</p>
 
-## 📋 프로젝트 개요
+<p align="center" style="font-size:16px; line-height:1.6;">
+  This project leverages <b>Explainable AI (XAI)</b> technologies to provide transparent and interpretable predictions for breast cancer cell image classification. The system integrates advanced machine learning models and XAI techniques to enhance medical professionals' trust in automated diagnostic systems. 🩺
+</p>
 
-이 프로젝트는 유방암 세포 이미지를 분석하여 양성(Benign)과 악성(Malignant)을 분류하고, SHAP, LIME, VLM 등의 XAI 기술을 사용하여 예측 결과를 설명하는 웹 애플리케이션입니다.
+---
 
-### 주요 기능
+### 🔎 **Project Overview**
 
-- **이미지 분류**: CNN 기반 딥러닝 모델과 전통적인 특징 추출 기반 모델을 사용한 이중 분류 시스템
-- **XAI 설명**: 
-  - SHAP (SHapley Additive exPlanations) - 특징 기여도 분석
-  - LIME (Local Interpretable Model-agnostic Explanations) - 지역적 설명
-  - VLM (Vision Language Model) - 자연어 기반 이미지 설명
-- **세포 감지**: 이미지에서 세포를 자동으로 감지하고 바운딩 박스 표시
-- **실시간 분석**: 웹 인터페이스를 통한 실시간 이미지 업로드 및 분석
+The **Bic_Vision_XAI** is a web application designed to analyze breast cancer cell images using deep learning models. This system uses **CNN-based deep learning models** and **traditional feature-based Random Forest models** for classifying images as either **Benign** or **Malignant**. Additionally, the application uses cutting-edge **XAI techniques** such as **SHAP**, **LIME**, and **VLM** (Vision Language Models) to explain predictions and provide detailed visual and textual explanations of the model's decisions.
 
-## 🛠️ 기술 스택
+---
 
-- **Backend**: Flask
-- **Machine Learning**: 
-  - PyTorch (CNN 모델)
-  - scikit-learn (Random Forest)
-  - SHAP, LIME (XAI)
-- **Computer Vision**: OpenCV, scikit-image
-- **Frontend**: HTML, CSS, JavaScript
-- **VLM**: LLaVA (Vision Language Model)
+### ✨ **Key Features**
 
-## 📦 설치 방법
+- **🔬 Dual System Image Classification**:  
+   - **CNN-based Deep Learning Model**: Learns complex patterns in images.
+   - **Traditional Feature-based Random Forest**: Classifies based on 30 numerical features extracted from the images.
+   
+- **💡 XAI (Explainable AI) Explanation**:  
+   - **SHAP (SHapley Additive exPlanations)**: Quantifies the contribution of each feature to the prediction.
+   - **LIME (Local Interpretable Model-agnostic Explanations)**: Explains specific predictions with localized insights.
+   - **VLM (Vision Language Model - LLaVA)**: Generates detailed natural language explanations based on image and classification results.
+   
+- **🖼️ Cell Detection**:  
+   - Automatically detects breast cancer cell regions within images and highlights them using **bounding boxes**.
 
-### 1. 저장소 클론
+- **🚀 Real-time Analysis**:  
+   - Upload images directly to the web interface and receive immediate classification results and XAI explanations.
 
-```bash
-git clone <repository-url>
-cd test_breast_pj
-```
+---
 
-### 2. 가상환경 생성 및 활성화
+### 🛠️ **Tech Stack**
 
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
+| Category        | Technology           | Description                                        |
+| --------------- | -------------------- | -------------------------------------------------- |
+| **Backend**     | Flask                | Web application server framework                   |
+| **ML Core**     | PyTorch              | Deep learning framework for CNN models             |
+| **ML/XAI**      | scikit-learn, SHAP, LIME | Classical ML models & XAI libraries                |
+| **Vision**      | OpenCV, scikit-image | Image processing, feature extraction, cell detection |
+| **VLM**         | LLaVA                | Vision Language Model for generating natural language explanations |
+| **Frontend**    | HTML, CSS, JavaScript | Web interface and user experience design           |
 
-# Linux/Mac
-python3 -m venv venv
-source venv/bin/activate
-```
+---
 
-### 3. 의존성 설치
+### 📊 **Datasets Used**
 
-```bash
-pip install -r requirements.txt
-```
+This project utilizes two major datasets for training and evaluating the models:
 
-### 4. PyTorch 설치 (GPU 지원)
+1. **[Breast Cancer Wisconsin (Diagnostic) Dataset](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)** (UCI ML Repository)  
+   - **Content**: 569 samples with 30 numerical features (e.g., radius, texture, perimeter, area) to classify tumors as **Malignant** or **Benign**.
+   - **Source**: University of Wisconsin Diagnostic Center
 
-GPU를 사용하는 경우 (CUDA 12.1):
+2. **[Breast Cancer Cell Segmentation Dataset (Andrewmvd)](https://www.kaggle.com/datasets/andrewmvd/breast-cancer-cell-segmentation)** (Kaggle)  
+   - **Content**: Includes **TIFF** and **PNG** images of breast cancer cells, along with the diagnosis results (Benign/Malignant).
+   - **Data Use**: Utilized for image-based deep learning classification and segmentation tasks, including **cell detection** and **image classification**.
+   - **Link**: [Kaggle Breast Cancer Cell Segmentation Dataset](https://www.kaggle.com/datasets/andrewmvd/breast-cancer-cell-segmentation)
 
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-```
+---
 
-CPU만 사용하는 경우:
+### 📦 **Installation and Setup**
 
-```bash
-pip install torch torchvision torchaudio
-```
-
-### 5. GPU 확인 (선택사항)
-
-```bash
-python check_gpu.py
-```
-
-## 🚀 사용 방법
-
-### 1. 애플리케이션 실행
+1. **Clone the Repository**:
 
 ```bash
-python app.py
-```
-
-### 2. 웹 브라우저 접속
-
-```
-http://localhost:5000
-```
-
-### 3. 이미지 업로드 및 분석
-
-1. 웹 인터페이스에서 이미지 파일(.tif, .png, .jpg 등)을 업로드
-2. 자동으로 세포 감지 및 분류 수행
-3. 예측 결과 및 XAI 설명 확인
-
-## 📁 프로젝트 구조
-
-```
-test_breast_pj/
-├── app.py                 # Flask 메인 애플리케이션
-├── model_utils.py         # 모델 학습 및 예측 유틸리티
-├── image_classifier.py    # CNN 기반 이미지 분류기
-├── image_utils.py         # 이미지 처리 및 특징 추출
-├── vlm_utils.py           # VLM 설명 생성 유틸리티
-├── analyze_data.py        # 데이터 분석 스크립트
-├── check_gpu.py           # GPU 환경 확인 스크립트
-├── requirements.txt       # Python 패키지 의존성
-├── templates/
-│   └── index.html        # 웹 인터페이스
-├── static/
-│   ├── css/
-│   │   └── style.css    # 스타일시트
-│   └── images/          # 정적 이미지 파일
-└── uploads/             # 업로드된 이미지 저장 폴더
-```
-
-## 🔧 모델 학습
-
-### 수치 기반 모델 (Random Forest)
-
-모델은 `kr_data.csv` 파일을 사용하여 자동으로 학습됩니다. 모델 파일이 없으면 첫 실행 시 자동으로 학습됩니다.
-
-### CNN 이미지 분류 모델
-
-이미지 분류 모델은 `image/Images` 폴더의 이미지를 사용하여 학습됩니다:
-
-```python
-from image_classifier import ImageClassifier
-
-classifier = ImageClassifier()
-classifier.train(image_dir="image/Images", epochs=15, batch_size=8)
-```
-
-## 📊 데이터 형식
-
-- **입력 이미지**: TIF, PNG, JPG 형식 지원
-- **학습 데이터**: `kr_data.csv` - 30개 특징과 진단 결과(B/M)
-
-## ⚙️ 설정
-
-### 환경 변수
-
-필요한 경우 `.env` 파일을 생성하여 설정할 수 있습니다.
-
-### 모델 경로
-
-- 수치 기반 모델: `breast_cancer_model.joblib`, `scaler.joblib`
-- CNN 모델: `image_classifier_model.pth`
-
-## 🐛 문제 해결
-
-### GPU를 사용할 수 없는 경우
-
-1. CUDA가 설치되어 있는지 확인: `python check_gpu.py`
-2. PyTorch GPU 버전 재설치:
-   ```bash
-   pip uninstall torch torchvision torchaudio
-   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-   ```
-
-### VLM 모델 로드 실패
-
-VLM 모델은 첫 사용 시 자동으로 다운로드됩니다. 인터넷 연결이 필요하며, 시간이 걸릴 수 있습니다.
-
-### 이미지에서 세포를 감지하지 못하는 경우
-
-- 이미지 품질 확인
-- 전처리 파라미터 조정 (`image_utils.py`의 `detect_cells` 함수)
-
-## 📝 라이선스
-
-이 프로젝트는 교육 및 연구 목적으로 제작되었습니다.
-
-## 👥 기여자
-
-프로젝트에 기여해주신 모든 분들께 감사드립니다.
-
-## 📧 문의
-
-문제가 발생하거나 질문이 있으시면 이슈를 등록해주세요.
-
+git clone https://github.com/HaeinSeo/bic_vision_xai.git
+cd bic_vision_xai
