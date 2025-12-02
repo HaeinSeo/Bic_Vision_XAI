@@ -1,6 +1,6 @@
 # 💡 Bic_Vision_XAI 💡  
 <p align="center">
-  <img src="https://github.com/HaeinSeo/Bic_Vision_XAI/blob/main/haehaein.png" width="200" alt="Bic_Vision_XAI Logo">
+  <img src="https://github.com/HaeinSeo/Bic_Vision_XAI/blob/main/hae.png" width="200" alt="Bic_Vision_XAI Logo">
 </p>
 
 <p align="center" style="font-family: 'Comic Sans MS', 'Garamond', cursive; color:#993A6B;">
