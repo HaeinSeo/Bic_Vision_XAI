@@ -70,6 +70,20 @@ This project uses **two independent datasets** to support both numerical-feature
 ### 📑 My Other Project
 <https://github.com/HaeinSeo/bc-viz>
 
+### 🌺Live demo Video and captured images
+https://github.com/user-attachments/assets/09491f00-293a-4764-b665-9f8fb0a628c1
+
+![Image](https://github.com/user-attachments/assets/547c2952-3707-46c6-b5b0-2a5c0f6ab8bc)
+![Image](https://github.com/user-attachments/assets/1368d6da-6137-4c1a-91e0-9dacb8c6b686)
+![Image](https://github.com/user-attachments/assets/750d309f-c68c-4100-af5d-55cd205843f2)
+![Image](https://github.com/user-attachments/assets/8e60211c-d840-4302-ad22-d2d01ef866f9)
+![Image](https://github.com/user-attachments/assets/7d9af188-2d00-4dcc-bc23-f3931a03e9bd)
+![Image](https://github.com/user-attachments/assets/6fe5fbf7-c5dc-44cc-a70d-5b24b1cd6fb6)
+![Image](https://github.com/user-attachments/assets/cbd4576e-bf6f-4e9f-b55a-fa63dca21580)
+![Image](https://github.com/user-attachments/assets/b7489ade-2b2b-4be4-9633-96c3ec424546)
+![Image](https://github.com/user-attachments/assets/a5040e23-43fb-4719-83f2-27db9b515c88)
+![Image](https://github.com/user-attachments/assets/7b7c52e8-d8e1-4384-9a5d-2af02a2e787a)
+
 ### 📦 Installation & Execution
 
 #### 1️⃣ Clone the repository
