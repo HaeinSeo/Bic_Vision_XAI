@@ -67,6 +67,8 @@ This project uses **two independent datasets** to support both numerical-feature
 - Used for **CNN image classification** & **cell detection**
 
 ---
+### 📑 Our Other Project
+<https://github.com/HaeinSeo/bc-viz>
 
 ### 📦 Installation & Execution
 
