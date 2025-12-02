@@ -1,0 +1,86 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 가상환경
+venv/
+env/
+ENV/
+.venv
+
+# 모델 파일 (용량이 크므로 제외)
+*.pth
+*.pt
+*.joblib
+*.h5
+*.pkl
+*.ckpt
+*.safetensors
+
+# 데이터 파일
+*.csv
+*.tif
+*.TIF
+*.xml
+image/
+uploads/
+static/results/
+
+# 루트 디렉토리의 이미지 파일 (static/images는 유지)
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# 로그 파일
+*.log
+*.out
+
+# 환경 변수
+.env
+.env.local
+
+# OS
+Thumbs.db
+desktop.ini
+
+# 테스트
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 기타
+*.tmp
+*.bak
+*.orig
+

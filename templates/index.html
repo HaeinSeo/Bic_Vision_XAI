@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유방암 이미지 분석 시스템 - XAI 기반 설명 가능한 AI</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/team_logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 유방암 이미지 분석 시스템</h1>
+            <p class="subtitle">XAI (SHAP) 기반 설명 가능한 인공지능</p>
+        </header>
+
+        <main>
+            <div class="examples-section">
+                <h2>📸 예시 이미지</h2>
+                <p class="examples-intro">아래 예시를 참고하여 양성과 악성 세포의 차이를 확인하세요</p>
+                <div class="examples-grid">
+                    <div class="example-card benign-example">
+                        <div class="example-header">
+                            <div class="example-badge benign-badge">양성 (Benign)</div>
+                        </div>
+                        <div class="example-image-container">
+                            <img src="{{ url_for('static', filename='images/benign_ex.png') }}" alt="양성 세포 예시" class="example-image">
+                            <div class="image-overlay">
+                                <div class="overlay-content">
+                                    <h3>양성 세포 특징</h3>
+                                    <ul>
+                                        <li>규칙적인 세포 형태</li>
+                                        <li>균일한 핵 크기</li>
+                                        <li>명확한 세포 경계</li>
+                                        <li>정상적인 세포 배열</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="example-card malignant-example">
+                        <div class="example-header">
+                            <div class="example-badge malignant-badge">악성 (Malignant)</div>
+                        </div>
+                        <div class="example-image-container">
+                            <img src="{{ url_for('static', filename='images/malignant_ex.png') }}" alt="악성 세포 예시" class="example-image">
+                            <div class="image-overlay">
+                                <div class="overlay-content">
+                                    <h3>악성 세포 특징</h3>
+                                    <ul>
+                                        <li>불규칙한 세포 형태</li>
+                                        <li>다양한 핵 크기</li>
+                                        <li>불명확한 세포 경계</li>
+                                        <li>비정상적인 세포 배열</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-section">
+                <h2>🔬 세포 검출 방법 비교 시각화</h2>
+                <div class="comparison-loading" id="comparisonLoading" style="display: none;">
+                    <div class="spinner-small"></div>
+                    <p>비교 시각화 생성 중...</p>
+                </div>
+                <div class="comparison-container" id="comparisonContainer">
+                    <img id="comparisonImage" src="" alt="비교 시각화" style="display: none; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <h2>이미지 업로드</h2>
+                <div class="upload-box" id="uploadBox">
+                    <input type="file" id="imageInput" accept="image/*,.tif,.TIF" style="display: none;">
+                    <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p>이미지를 클릭하거나 드래그하여 업로드</p>
+                        <p class="file-info">지원 형식: JPG, PNG, TIF</p>
+                    </div>
+                </div>
+                <div id="fileName" class="file-name"></div>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h2>분석 결과</h2>
+                
+                <div class="prediction-card">
+                    <div class="prediction-header">
+                        <h3>예측 결과</h3>
+                        <div class="prediction-method" id="predictionMethod" style="display: none;">
+                            <span class="method-tag" id="methodTag">CNN</span>
+                        </div>
+                    </div>
+                    <div class="prediction-content">
+                        <div class="prediction-badge" id="predictionBadge">
+                            <span id="predictionText">-</span>
+                            <span id="predictionProb">-</span>
+                        </div>
+                        <div class="actual-label" id="actualLabel" style="display: none;">
+                            <span class="label-text">실제 레이블: </span>
+                            <span class="label-value" id="actualLabelValue">-</span>
+                        </div>
+                        <div class="probability-bars">
+                            <div class="prob-bar">
+                                <label>악성 (M)</label>
+                                <div class="bar-container">
+                                    <div class="bar malignant" id="malignantBar"></div>
+                                    <span id="malignantProb">0%</span>
+                                </div>
+                            </div>
+                            <div class="prob-bar">
+                                <label>양성 (B)</label>
+                                <div class="bar-container">
+                                    <div class="bar benign" id="benignBar"></div>
+                                    <span id="benignProb">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-result">
+                    <div class="image-header">
+                        <h3>세포 감지 결과</h3>
+                    </div>
+                    <div class="image-container" id="imageContainer">
+                        <div class="image-wrapper" id="imageWrapper">
+                            <img id="resultImage" src="" alt="분석 결과 이미지" style="display: block; max-width: 100%; height: auto;">
+                            <canvas id="resultCanvas" style="display: none;"></canvas>
+                        </div>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-color malignant"></span>
+                            <span>악성 세포</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color benign"></span>
+                            <span>양성 세포</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color segmentation"></span>
+                            <span>세포 경계</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="segmentation-result">
+                    <h3>Cell Segmentation Visualization</h3>
+                    <p class="segmentation-intro">각 세포가 고유한 색상으로 구분되어 표시됩니다. 경계선 색상은 예측 결과를 나타냅니다 (빨강: 악성, 초록: 양성).</p>
+                    <div class="image-container" id="segmentationContainer">
+                        <div class="image-wrapper" id="segmentationWrapper">
+                            <img id="segmentationImage" src="" alt="Segmentation 시각화 이미지">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mask-segmentation-result" id="maskSegmentationResult" style="display: none;">
+                    <h3>Mask file-based cell boundary visualization</h3>
+                    <p class="segmentation-intro">Masks 폴더의 마스크 파일을 직접 사용하여 추출한 정확한 세포 경계입니다. 각 세포가 고유한 색상으로 구분되어 표시됩니다.</p>
+                    <div class="image-container" id="maskSegmentationContainer">
+                        <div class="image-wrapper" id="maskSegmentationWrapper">
+                            <img id="maskSegmentationImage" src="" alt="마스크 기반 Segmentation 시각화 이미지">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explanation-card">
+                    <h3>📊 판단 근거 (XAI 분석)</h3>
+                    <p class="explanation-intro">다음 특징들이 예측 결과에 가장 큰 영향을 미쳤습니다:</p>
+                    <div class="explanation-method" id="explanationMethod" style="display: none;">
+                        <span class="method-badge" id="methodBadge">SHAP</span>
+                    </div>
+                    <div class="features-list" id="featuresList">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+
+                <div class="features-card">
+                    <h3>🔍 추출된 특징 값</h3>
+                    <div class="features-grid" id="featuresGrid">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+
+                <div class="vlm-explanation-card">
+                    <h3>🤖 AI 이미지 분석 설명 (VLM)</h3>
+                    <div class="vlm-loading" id="vlmLoading" style="display: none;">
+                        <div class="spinner-small"></div>
+                        <p>AI가 이미지를 분석하고 설명을 생성하는 중...</p>
+                    </div>
+                    <div class="vlm-content" id="vlmContent">
+                        <div class="vlm-explanation-text" id="vlmExplanation">
+                            <!-- VLM 설명이 여기에 표시됩니다 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>이미지 분석 중...</p>
+            </div>
+        </main>
+
+        <div class="creator-section">
+            <h2>👨‍💻 Developer</h2>
+            <div class="creator-card">
+                <div class="creator-image-container">
+                    <img src="{{ url_for('static', filename='images/hae.png') }}" alt="서해인" class="creator-image">
+                    <div class="creator-glow"></div>
+                </div>
+                <div class="creator-info">
+                    <h3>서해인 (Seo Hae In)</h3>
+                    <p class="creator-org">덕성여자대학교 데이터사이언스학과</p>
+                    <p class="creator-org-en">Duksung Women's University<br>Department of Data Science</p>
+                    <div class="creator-badges">
+                        <span class="badge">Data Science</span>
+                        <span class="badge">AI/ML</span>
+                        <span class="badge">Computer Vision</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 유방암 이미지 분석 시스템 | XAI 기반 설명 가능한 AI</p>
+            <p class="footer-sub">Developed by Hae-In Seo</p>
+        </footer>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const fileName = document.getElementById('fileName');
+        const resultsSection = document.getElementById('resultsSection');
+        const loading = document.getElementById('loading');
+
+        // 파일 선택 이벤트
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                fileName.textContent = `선택된 파일: ${file.name}`;
+                fileName.style.display = 'block';
+                
+                // 자동으로 분석 시작
+                analyzeImage(file);
+            }
+        });
+
+        // 드래그 앤 드롭
+        const uploadArea = uploadBox.querySelector('.upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                imageInput.files = e.dataTransfer.files;
+                fileName.textContent = `선택된 파일: ${file.name}`;
+                fileName.style.display = 'block';
+                analyzeImage(file);
+            }
+        });
+
+        // 이미지 분석 함수
+        async function analyzeImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            loading.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    alert('오류: ' + (data.error || '알 수 없는 오류가 발생했습니다.'));
+                }
+            } catch (error) {
+                alert('오류: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                resultsSection.style.display = 'block';
+            }
+        }
+
+        // 결과 표시 함수
+        function displayResults(data) {
+            // 예측 결과
+            const predictionText = document.getElementById('predictionText');
+            const predictionProb = document.getElementById('predictionProb');
+            const predictionBadge = document.getElementById('predictionBadge');
+            const predictionMethod = document.getElementById('predictionMethod');
+            const methodTag = document.getElementById('methodTag');
+            const actualLabel = document.getElementById('actualLabel');
+            const actualLabelValue = document.getElementById('actualLabelValue');
+            
+            predictionText.textContent = data.prediction;
+            predictionProb.textContent = `(${(data.probability * 100).toFixed(2)}%)`;
+            
+            if (data.prediction.includes('악성')) {
+                predictionBadge.className = 'prediction-badge malignant';
+                predictionText.className = 'malignant-text';
+                predictionProb.className = 'malignant-text';
+            } else {
+                predictionBadge.className = 'prediction-badge benign';
+                predictionText.className = 'benign-text';
+                predictionProb.className = 'benign-text';
+            }
+            
+            // 예측 방법 표시
+            if (data.prediction_method) {
+                predictionMethod.style.display = 'block';
+                methodTag.textContent = data.prediction_method;
+            }
+            
+            // 실제 레이블 표시 (파일명 기반)
+            if (data.actual_label) {
+                actualLabel.style.display = 'block';
+                actualLabelValue.textContent = data.actual_label;
+                
+                // 정확도 표시 및 색상 설정
+                const isCorrect = data.actual_label === data.prediction;
+                if (data.actual_label.includes('악성')) {
+                    actualLabelValue.className = 'label-value malignant-label';
+                } else if (data.actual_label.includes('양성')) {
+                    actualLabelValue.className = 'label-value benign-label';
+                } else {
+                    actualLabelValue.className = 'label-value ' + (isCorrect ? 'correct' : 'incorrect');
+                }
+            }
+
+            // 확률 바
+            const malignantProb = (data.malignant_prob * 100).toFixed(1);
+            const benignProb = (data.benign_prob * 100).toFixed(1);
+            
+            document.getElementById('malignantBar').style.width = malignantProb + '%';
+            document.getElementById('malignantProb').textContent = malignantProb + '%';
+            document.getElementById('benignBar').style.width = benignProb + '%';
+            document.getElementById('benignProb').textContent = benignProb + '%';
+
+            // 이미지 직접 표시 (확대 기능 제거)
+            const resultImage = document.getElementById('resultImage');
+            const resultCanvas = document.getElementById('resultCanvas');
+            
+            // 결과 이미지 직접 표시 (bbox 포함된 이미지)
+            if (data.image) {
+                resultImage.src = data.image;
+                resultImage.style.display = 'block';
+                resultCanvas.style.display = 'none';
+            }
+            
+            // Segmentation 이미지 표시
+            if (data.segmentation_image) {
+                const segImage = document.getElementById('segmentationImage');
+                if (segImage) {
+                    segImage.src = data.segmentation_image;
+                    
+                    // Segmentation 이미지도 줌 기능 적용
+                    segImage.onload = function() {
+                        initSegmentationZoom();
+                    };
+                }
+            }
+            
+            // 마스크 기반 Segmentation 이미지 표시
+            if (data.mask_based_image) {
+                const maskSegResult = document.getElementById('maskSegmentationResult');
+                const maskSegImage = document.getElementById('maskSegmentationImage');
+                if (maskSegResult && maskSegImage) {
+                    maskSegResult.style.display = 'block';
+                    maskSegImage.src = data.mask_based_image;
+                    
+                    // 마스크 기반 이미지도 줌 기능 적용
+                    maskSegImage.onload = function() {
+                        initMaskSegmentationZoom();
+                    };
+                }
+            } else {
+                const maskSegResult = document.getElementById('maskSegmentationResult');
+                if (maskSegResult) {
+                    maskSegResult.style.display = 'none';
+                }
+            }
+
+            // 설명 방법 표시
+            const explanationMethod = document.getElementById('explanationMethod');
+            const methodBadge = document.getElementById('methodBadge');
+            if (data.explanation && data.explanation.method) {
+                explanationMethod.style.display = 'block';
+                const method = data.explanation.method;
+                methodBadge.textContent = method;
+                methodBadge.className = 'method-badge ' + method.toLowerCase().replace(' ', '-');
+            } else {
+                explanationMethod.style.display = 'none';
+            }
+
+            // SHAP/LIME 설명
+            const featuresList = document.getElementById('featuresList');
+            featuresList.innerHTML = '';
+            
+            if (data.explanation && data.explanation.top_features) {
+                data.explanation.top_features.forEach((feat, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'feature-item';
+                    
+                    const contribution = feat.contribution;
+                    const isPositive = contribution > 0;
+                    
+                    item.innerHTML = `
+                        <div class="feature-rank">${index + 1}</div>
+                        <div class="feature-info">
+                            <div class="feature-name">${feat.feature}</div>
+                            <div class="feature-contribution ${isPositive ? 'positive' : 'negative'}">
+                                ${isPositive ? '+' : ''}${contribution.toFixed(4)}
+                            </div>
+                        </div>
+                        <div class="feature-bar">
+                            <div class="feature-bar-fill ${isPositive ? 'positive' : 'negative'}" 
+                                 style="width: ${Math.abs(contribution) * 100}%"></div>
+                        </div>
+                    `;
+                    featuresList.appendChild(item);
+                });
+            }
+
+            // 특징 값 그리드
+            const featuresGrid = document.getElementById('featuresGrid');
+            featuresGrid.innerHTML = '';
+            
+            if (data.features) {
+                Object.entries(data.features).forEach(([name, value]) => {
+                    const item = document.createElement('div');
+                    item.className = 'feature-value-item';
+                    item.innerHTML = `
+                        <div class="feature-value-name">${name}</div>
+                        <div class="feature-value-number">${value.toFixed(4)}</div>
+                    `;
+                    featuresGrid.appendChild(item);
+                });
+            }
+
+            // VLM 설명 표시
+            const vlmExplanation = document.getElementById('vlmExplanation');
+            const vlmLoading = document.getElementById('vlmLoading');
+            const vlmContent = document.getElementById('vlmContent');
+            
+            // 디버깅: 콘솔에 상세 정보 출력
+            console.log('='.repeat(60));
+            console.log('🔍 VLM 설명 데이터 확인');
+            console.log('='.repeat(60));
+            console.log('✅ VLM 설명 존재 여부:', !!data.vlm_explanation);
+            console.log('📊 VLM 설명 타입:', typeof data.vlm_explanation);
+            console.log('📏 VLM 설명 길이:', data.vlm_explanation ? data.vlm_explanation.length : 0);
+            console.log('📝 VLM 설명 내용 (처음 300자):', data.vlm_explanation ? data.vlm_explanation.substring(0, 300) : '없음');
+            console.log('📝 VLM 설명 전체:', data.vlm_explanation);
+            console.log('='.repeat(60));
+            
+            if (data.vlm_explanation && data.vlm_explanation.trim().length > 0) {
+                vlmLoading.style.display = 'none';
+                vlmContent.style.display = 'block';
+                // 마크다운 형식의 텍스트를 HTML로 변환
+                const explanationHtml = formatVLMExplanation(data.vlm_explanation);
+                console.log('✅ 포맷팅된 HTML (처음 500자):', explanationHtml.substring(0, 500));
+                vlmExplanation.innerHTML = explanationHtml;
+                console.log('✅ VLM 설명이 화면에 표시되었습니다.');
+            } else {
+                // VLM 설명이 없으면 로딩 표시
+                vlmLoading.style.display = 'none';
+                vlmContent.style.display = 'block';
+                vlmExplanation.innerHTML = '<p style="color: #ff6b6b;">⚠️ VLM 설명을 생성할 수 없습니다.</p>';
+                console.warn('❌ VLM 설명이 없거나 비어있습니다.');
+                console.warn('전체 응답 데이터:', data);
+            }
+        }
+
+        // 이미지 줌/패닝 기능
+        let zoomLevel = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let isSegmentationVisible = false; // 첫 창에서는 segmentation 비활성화
+        let boxesData = [];
+        let baseImageObj = null;
+        
+        // Canvas에 박스 그리기 함수
+        function drawBoxesOnCanvas(ctx, boxes, imgWidth, imgHeight) {
+            boxesData = boxes; // 전역 변수에 저장
+            
+            // 확대 레벨에 따라 박스 위치 조정
+            const adjustedBoxes = adjustBoxPositionsForZoom(boxes, zoomLevel, imgWidth, imgHeight);
+            
+            adjustedBoxes.forEach((box, idx) => {
+                const [x, y, w, h] = box.bbox;
+                const color = box.color;
+                const isMalignant = box.is_malignant;
+                
+                // Bounding box 그리기
+                ctx.strokeStyle = color;
+                ctx.lineWidth = zoomLevel > 1.5 ? 3 : 2;
+                ctx.globalAlpha = 0.8;
+                ctx.strokeRect(x, y, w, h);
+                
+                // 반투명 채우기
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.2;
+                ctx.fillRect(x, y, w, h);
+                
+                // Segmentation (contours) 그리기 - 첫 창에서는 제거됨
+                // segmentation은 별도의 segmentation-result 섹션에서만 표시
+                
+                // 레이블 그리기
+                const labelX = box.adjustedX !== undefined ? box.adjustedX : x;
+                const labelY = box.adjustedY !== undefined ? box.adjustedY : y - 5;
+                
+                // 레이블 텍스트 구성
+                let labelText = `${box.label} (${(box.probability * 100).toFixed(1)}%)`;
+                if (box.top_features && box.top_features.length > 0) {
+                    const topFeat = box.top_features[0];
+                    const shortName = topFeat.feature.replace(/_mean|_worst|_se/g, '');
+                    labelText += `\n${shortName.substring(0, 15)}(${topFeat.contribution > 0 ? '+' : ''}${topFeat.contribution.toFixed(2)})`;
+                }
+                
+                // 레이블 배경
+                const labelLines = labelText.split('\n');
+                const labelHeight = labelLines.length * 16 + 8;
+                const labelWidth = Math.max(...labelLines.map(l => l.length * 8)) + 12;
+                
+                ctx.fillStyle = 'white';
+                ctx.globalAlpha = 0.95;
+                ctx.fillRect(labelX - 2, labelY - labelHeight - 2, labelWidth, labelHeight);
+                
+                // 레이블 테두리
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2.5;
+                ctx.globalAlpha = 1;
+                ctx.strokeRect(labelX - 2, labelY - labelHeight - 2, labelWidth, labelHeight);
+                
+                // 레이블 텍스트
+                ctx.fillStyle = isMalignant ? '#cc0000' : '#006600';
+                ctx.font = `bold ${zoomLevel > 1.5 ? 10 : 8}px Arial`;
+                ctx.globalAlpha = 1;
+                labelLines.forEach((line, i) => {
+                    ctx.fillText(line, labelX + 4, labelY - labelHeight + 16 + (i * 16));
+                });
+            });
+        }
+        
+        // 확대 시 박스 위치 조정 (겹침 방지 - 개선된 버전)
+        function adjustBoxPositionsForZoom(boxes, zoom, imgWidth, imgHeight) {
+            if (zoom <= 1.0) {
+                // 확대가 없으면 원래 위치 사용
+                return boxes.map(box => ({ ...box, adjustedX: undefined, adjustedY: undefined }));
+            }
+            
+            // 확대 레벨에 따라 레이블 크기 조정
+            const labelHeight = Math.max(40, 50 * zoom); // 줌에 따라 레이블 높이 증가
+            const labelWidth = Math.max(120, 150 * zoom); // 줌에 따라 레이블 너비 증가
+            const minSpacing = 15 * zoom; // 최소 간격도 줌에 따라 증가
+            
+            // 확대가 크면 레이블 위치 조정
+            const adjusted = boxes.map((box, idx) => {
+                const [x, y, w, h] = box.bbox;
+                let adjustedX = x;
+                let adjustedY = y - 5;
+                
+                // 줌 레벨에 따라 오프셋 조정
+                const zoomOffset = (zoom - 1) * 10;
+                
+                // 다른 박스들과의 겹침 확인 및 조정 (더 정교한 알고리즘)
+                let attempts = 0;
+                const maxAttempts = 20;
+                
+                while (attempts < maxAttempts) {
+                    let hasCollision = false;
+                    
+                    // 이전에 배치된 모든 박스와 충돌 확인
+                    for (let i = 0; i < idx; i++) {
+                        const otherBox = adjusted[i];
+                        const [ox, oy, ow, oh] = otherBox.bbox;
+                        const otherLabelY = otherBox.adjustedY !== undefined ? otherBox.adjustedY : oy - 5;
+                        const otherLabelX = otherBox.adjustedX !== undefined ? otherBox.adjustedX : ox;
+                        
+                        // 레이블 영역 계산
+                        const thisLabelLeft = adjustedX;
+                        const thisLabelRight = adjustedX + labelWidth;
+                        const thisLabelTop = adjustedY - labelHeight;
+                        const thisLabelBottom = adjustedY;
+                        
+                        const otherLabelLeft = otherLabelX;
+                        const otherLabelRight = otherLabelX + labelWidth;
+                        const otherLabelTop = otherLabelY - labelHeight;
+                        const otherLabelBottom = otherLabelY;
+                        
+                        // 겹침 확인 (더 정확한 영역 기반)
+                        const horizontalOverlap = !(thisLabelRight < otherLabelLeft || thisLabelLeft > otherLabelRight);
+                        const verticalOverlap = !(thisLabelBottom < otherLabelTop || thisLabelTop > otherLabelBottom);
+                        
+                        if (horizontalOverlap && verticalOverlap) {
+                            hasCollision = true;
+                            
+                            // 충돌 방지 전략: 여러 방향 시도
+                            if (attempts % 4 === 0) {
+                                // 위로 이동
+                                adjustedY = otherLabelTop - minSpacing;
+                            } else if (attempts % 4 === 1) {
+                                // 오른쪽으로 이동
+                                adjustedX = otherLabelRight + minSpacing;
+                            } else if (attempts % 4 === 2) {
+                                // 아래로 이동 (박스 아래)
+                                adjustedY = y + h + minSpacing;
+                            } else {
+                                // 왼쪽으로 이동
+                                adjustedX = otherLabelLeft - labelWidth - minSpacing;
+                            }
+                            break;
+                        }
+                    }
+                    
+                    if (!hasCollision) {
+                        break;
+                    }
+                    
+                    attempts++;
+                }
+                
+                // 이미지 경계 확인 및 조정
+                adjustedY = Math.max(10, Math.min(adjustedY, imgHeight - labelHeight - 10));
+                adjustedX = Math.max(5, Math.min(adjustedX, imgWidth - labelWidth - 5));
+                
+                // 박스 영역과 겹치지 않도록 조정
+                if (adjustedY > y && adjustedY < y + h) {
+                    adjustedY = y + h + minSpacing;
+                }
+                if (adjustedX > x && adjustedX < x + w) {
+                    adjustedX = x + w + minSpacing;
+                }
+                
+                return { ...box, adjustedX, adjustedY };
+            });
+            
+            return adjusted;
+        }
+        
+        function initZoomPan() {
+            const imageWrapper = document.getElementById('imageWrapper');
+            const resultCanvas = document.getElementById('resultCanvas');
+            const zoomInBtn = document.getElementById('zoomInBtn');
+            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            const resetZoomBtn = document.getElementById('resetZoomBtn');
+            const toggleSegmentationBtn = document.getElementById('toggleSegmentationBtn');
+            
+            if (!imageWrapper || !resultCanvas) return;
+            
+            // 줌 인
+            zoomInBtn.addEventListener('click', () => {
+                zoomLevel = Math.min(zoomLevel * 1.5, 5);
+                updateCanvasTransform();
+            });
+            
+            // 줌 아웃
+            zoomOutBtn.addEventListener('click', () => {
+                zoomLevel = Math.max(zoomLevel / 1.5, 0.5);
+                updateCanvasTransform();
+            });
+            
+            // 리셋
+            resetZoomBtn.addEventListener('click', () => {
+                zoomLevel = 1;
+                panX = 0;
+                panY = 0;
+                updateCanvasTransform();
+            });
+            
+            // 세포 경계 토글
+            toggleSegmentationBtn.addEventListener('click', () => {
+                isSegmentationVisible = !isSegmentationVisible;
+                toggleSegmentationBtn.style.opacity = isSegmentationVisible ? '1' : '0.5';
+                updateCanvasTransform();
+            });
+            
+            // 마우스 휠로 줌 (마우스 위치 기준)
+            imageWrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                
+                const rect = imageWrapper.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const oldZoom = zoomLevel;
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                zoomLevel = Math.max(0.5, Math.min(5, zoomLevel * delta));
+                
+                // 마우스 위치를 중심으로 줌
+                const zoomChange = zoomLevel / oldZoom;
+                panX = mouseX - (mouseX - panX) * zoomChange;
+                panY = mouseY - (mouseY - panY) * zoomChange;
+                
+                updateCanvasTransform();
+            });
+            
+            // 드래그로 패닝
+            imageWrapper.addEventListener('mousedown', (e) => {
+                if (zoomLevel > 1) {
+                    isDragging = true;
+                    dragStartX = e.clientX - panX;
+                    dragStartY = e.clientY - panY;
+                    imageWrapper.style.cursor = 'grabbing';
+                }
+            });
+            
+            imageWrapper.addEventListener('mousemove', (e) => {
+                if (isDragging && zoomLevel > 1) {
+                    panX = e.clientX - dragStartX;
+                    panY = e.clientY - dragStartY;
+                    updateCanvasTransform();
+                }
+            });
+            
+            imageWrapper.addEventListener('mouseup', () => {
+                isDragging = false;
+                imageWrapper.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
+            });
+            
+            imageWrapper.addEventListener('mouseleave', () => {
+                isDragging = false;
+                imageWrapper.style.cursor = 'default';
+            });
+        }
+        
+        function updateCanvasTransform() {
+            const resultCanvas = document.getElementById('resultCanvas');
+            const imageWrapper = document.getElementById('imageWrapper');
+            if (!resultCanvas || !imageWrapper) return;
+            
+            // Canvas 변환
+            resultCanvas.style.transform = `scale(${zoomLevel}) translate(${panX / zoomLevel}px, ${panY / zoomLevel}px)`;
+            resultCanvas.style.transformOrigin = 'top left';
+            
+            // Canvas 다시 그리기 (박스 위치 동적 조정)
+            if (baseImageObj && boxesData.length > 0) {
+                const ctx = resultCanvas.getContext('2d');
+                ctx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+                ctx.drawImage(baseImageObj, 0, 0);
+                drawBoxesOnCanvas(ctx, boxesData, resultCanvas.width, resultCanvas.height);
+            }
+        }
+        
+        
+        // Segmentation 이미지 줌/패닝 기능
+        let segZoomLevel = 1;
+        let segPanX = 0;
+        let segPanY = 0;
+        let segIsDragging = false;
+        let segDragStartX = 0;
+        let segDragStartY = 0;
+        
+        function initSegmentationZoom() {
+            const segWrapper = document.getElementById('segmentationWrapper');
+            const segImage = document.getElementById('segmentationImage');
+            if (!segWrapper || !segImage) return;
+            
+            // 마우스 휠로 줌
+            segWrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                
+                const rect = segWrapper.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const oldZoom = segZoomLevel;
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                segZoomLevel = Math.max(0.5, Math.min(5, segZoomLevel * delta));
+                
+                const zoomChange = segZoomLevel / oldZoom;
+                segPanX = mouseX - (mouseX - segPanX) * zoomChange;
+                segPanY = mouseY - (mouseY - segPanY) * zoomChange;
+                
+                updateSegmentationTransform();
+            });
+            
+            // 드래그로 패닝
+            segWrapper.addEventListener('mousedown', (e) => {
+                if (segZoomLevel > 1) {
+                    segIsDragging = true;
+                    segDragStartX = e.clientX - segPanX;
+                    segDragStartY = e.clientY - segPanY;
+                    segWrapper.style.cursor = 'grabbing';
+                }
+            });
+            
+            segWrapper.addEventListener('mousemove', (e) => {
+                if (segIsDragging && segZoomLevel > 1) {
+                    segPanX = e.clientX - segDragStartX;
+                    segPanY = e.clientY - segDragStartY;
+                    updateSegmentationTransform();
+                }
+            });
+            
+            segWrapper.addEventListener('mouseup', () => {
+                segIsDragging = false;
+                segWrapper.style.cursor = segZoomLevel > 1 ? 'grab' : 'default';
+            });
+            
+            segWrapper.addEventListener('mouseleave', () => {
+                segIsDragging = false;
+                segWrapper.style.cursor = 'default';
+            });
+        }
+        
+        function updateSegmentationTransform() {
+            const segImage = document.getElementById('segmentationImage');
+            if (!segImage) return;
+            
+            segImage.style.transform = `scale(${segZoomLevel}) translate(${segPanX / segZoomLevel}px, ${segPanY / segZoomLevel}px)`;
+            segImage.style.transformOrigin = 'top left';
+        }
+        
+        // VLM 설명 포맷팅 함수
+        function formatVLMExplanation(text) {
+            if (!text) return '<p>설명을 생성할 수 없습니다.</p>';
+            
+            // 마크다운 형식의 텍스트를 HTML로 변환
+            let html = text;
+            
+            // 헤더 변환 (# -> <h4>, ## -> <h5>)
+            html = html.replace(/^### (.*$)/gim, '<h4>$1</h4>');
+            html = html.replace(/^## (.*$)/gim, '<h5>$1</h5>');
+            html = html.replace(/^# (.*$)/gim, '<h4>$1</h4>');
+            
+            // 볼드 변환 (**text** -> <strong>text</strong>)
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // 리스트 변환 (- -> <li>)
+            html = html.replace(/^- (.*$)/gim, '<li>$1</li>');
+            html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            
+            // 줄바꿈 처리
+            html = html.replace(/\n\n/g, '</p><p>');
+            html = html.replace(/\n/g, '<br>');
+            
+            // 문단 태그 추가
+            if (!html.startsWith('<')) {
+                html = '<p>' + html + '</p>';
+            }
+            
+            return html;
+        }
+
+        // 비교 시각화 로드
+        async function loadComparisonVisualization() {
+            const comparisonLoading = document.getElementById('comparisonLoading');
+            const comparisonImage = document.getElementById('comparisonImage');
+            const comparisonContainer = document.getElementById('comparisonContainer');
+            
+            try {
+                comparisonLoading.style.display = 'block';
+                comparisonImage.style.display = 'none';
+                
+                const response = await fetch('/comparison_visualization');
+                const data = await response.json();
+                
+                if (response.ok && data.image) {
+                    comparisonImage.src = data.image;
+                    comparisonImage.style.display = 'block';
+                } else {
+                    comparisonContainer.innerHTML = '<p style="color: #ff6b6b; text-align: center; padding: 20px;">비교 시각화를 생성할 수 없습니다.</p>';
+                }
+            } catch (error) {
+                console.error('비교 시각화 로드 오류:', error);
+                comparisonContainer.innerHTML = '<p style="color: #ff6b6b; text-align: center; padding: 20px;">비교 시각화를 로드하는 중 오류가 발생했습니다.</p>';
+            } finally {
+                comparisonLoading.style.display = 'none';
+            }
+        }
+
+        // 페이지 로드 시 비교 시각화 자동 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            loadComparisonVisualization();
+        });
+    </script>
+</body>
+</html>
+
